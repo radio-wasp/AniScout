@@ -1,0 +1,14 @@
+{
+  "name": "aniscout",
+  "version": "1.0.0",
+  "description": "Scan and browse AniList & MyAnimeList with one-click requests to Seerr, Sonarr, and Radarr",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

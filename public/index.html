@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AniScout — AniList & MAL Scanner for Seerr, Sonarr & Radarr</title>
+  <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+  <link rel="apple-touch-icon" href="/logo.jpg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="/logo.jpg" alt="AniScout Logo" class="brand-logo" />
+        <div>
+          <h1 class="brand-title">AniScout</h1>
+          <p class="brand-subtitle">AniList &amp; MyAnimeList Scanner &rarr; Seerr / Sonarr / Radarr</p>
+        </div>
+      </div>
+
+      <div class="source-switcher" role="tablist" aria-label="Anime Data Provider">
+        <button class="source-btn active" data-source="anilist" id="btn-source-anilist">
+          <span class="dot anilist-dot"></span> AniList
+        </button>
+        <button class="source-btn" data-source="mal" id="btn-source-mal">
+          <span class="dot mal-dot"></span> MyAnimeList
+        </button>
+        <button class="source-btn" data-source="crunchyroll" id="btn-source-crunchyroll">
+          <span class="dot cr-dot"></span> Crunchyroll
+        </button>
+        <button class="source-btn" data-source="hidive" id="btn-source-hidive">
+          <span class="dot hidive-dot"></span> HIDIVE
+        </button>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="integration-pills" id="integration-pills" title="Click Settings to configure integrations">
+          <span class="pill pill-muted" id="pill-seerr">Seerr</span>
+          <span class="pill pill-muted" id="pill-sonarr">Sonarr</span>
+          <span class="pill pill-muted" id="pill-radarr">Radarr</span>
+        </div>
+        <button class="btn btn-secondary" id="btn-open-watchlist">
+          📋 Scan User List
+        </button>
+        <button class="btn btn-icon" id="btn-open-settings" title="Integration Settings">
+          ⚙️ Settings
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Filter & Search Bar -->
+    <section class="controls-bar">
+      <div class="feed-tabs" id="feed-tabs">
+        <button class="feed-tab active" data-feed="trending">🔥 Trending</button>
+        <button class="feed-tab" data-feed="seasonal">🌸 Seasonal</button>
+        <button class="feed-tab" data-feed="popular">⭐ Most Popular</button>
+        <button class="feed-tab" data-feed="top">🏆 Top Rated</button>
+        <button class="feed-tab" data-feed="upcoming">🚀 Upcoming</button>
+      </div>
+
+      <div class="filters-row">
+        <div class="search-box">
+          <input
+            type="search"
+            id="search-input"
+            placeholder="Search anime title (English, Romaji, or Native)..."
+            autocomplete="off"
+          />
+          <button class="btn btn-primary" id="btn-search">Scan</button>
+        </div>
+
+        <div class="filter-selects">
+          <select id="filter-season" aria-label="Season">
+            <option value="">All Seasons</option>
+            <option value="WINTER">❄️ Winter</option>
+            <option value="SPRING">🌸 Spring</option>
+            <option value="SUMMER">☀️ Summer</option>
+            <option value="FALL">🍂 Fall</option>
+          </select>
+
+          <select id="filter-year" aria-label="Year">
+            <option value="">All Years</option>
+          </select>
+
+          <select id="filter-format" aria-label="Format">
+            <option value="">All Formats</option>
+            <option value="TV">TV Series</option>
+            <option value="MOVIE">Movie</option>
+            <option value="OVA">OVA</option>
+            <option value="ONA">ONA</option>
+            <option value="SPECIAL">Special</option>
+          </select>
+
+          <select id="filter-genre" aria-label="Genre">
+            <option value="">All Genres</option>
+            <option value="Action">Action</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Drama">Drama</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="Horror">Horror</option>
+            <option value="Mecha">Mecha</option>
+            <option value="Mystery">Mystery</option>
+            <option value="Psychological">Psychological</option>
+            <option value="Romance">Romance</option>
+            <option value="Sci-Fi">Sci-Fi</option>
+            <option value="Slice of Life">Slice of Life</option>
+            <option value="Sports">Sports</option>
+            <option value="Supernatural">Supernatural</option>
+            <option value="Thriller">Thriller</option>
+          </select>
+
+          <label class="toggle-unowned" title="Hide anime already monitored or downloaded in Sonarr/Radarr">
+            <input type="checkbox" id="toggle-hide-in-library" />
+            <span>Hide In Library</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Watchlist Scanner Drawer (Collapsible) -->
+    <section class="watchlist-drawer hidden" id="watchlist-drawer">
+      <div class="watchlist-inner">
+        <div>
+          <h3>Scan Personal AniList Watchlist</h3>
+          <p class="muted">Import any public AniList user's "Planning" or "Watching" list and request missing shows in one click.</p>
+        </div>
+        <div class="watchlist-controls">
+          <input type="text" id="watchlist-username" placeholder="AniList Username (e.g. Josh)" />
+          <select id="watchlist-status">
+            <option value="PLANNING">Plan to Watch</option>
+            <option value="CURRENT">Currently Watching</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="PAUSED">On Hold</option>
+          </select>
+          <button class="btn btn-primary" id="btn-run-watchlist">Load Watchlist</button>
+          <button class="btn btn-ghost" id="btn-close-watchlist">Close</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status Bar -->
+    <div class="results-Subheader">
+      <div id="results-summary" class="results-summary">Scanning anime catalog...</div>
+      <div class="pagination-controls">
+        <button class="btn btn-secondary btn-sm" id="btn-prev-page" disabled>&larr; Prev</button>
+        <span id="page-indicator" class="page-indicator">Page 1</span>
+        <button class="btn btn-secondary btn-sm" id="btn-next-page">Next &rarr;</button>
+      </div>
+    </div>
+
+    <!-- Anime Grid -->
+    <section id="anime-grid" class="anime-grid" aria-live="polite"></section>
+  </main>
+
+  <!-- Anime Details Modal -->
+  <div class="modal-backdrop hidden" id="details-modal">
+    <div class="modal-card modal-lg">
+      <button class="modal-close" id="btn-close-details" aria-label="Close">&times;</button>
+      <div id="details-content"></div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop hidden" id="settings-modal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h2>⚙️ Integration Settings</h2>
+        <button class="modal-close" id="btn-close-settings" aria-label="Close">&times;</button>
+      </div>
+
+      <form id="settings-form" class="settings-form">
+        <div class="form-section">
+          <h3>Request Button Mode</h3>
+          <p class="muted">Choose which download/request buttons appear on each anime card.</p>
+          <div class="radio-group">
+            <label class="radio-card">
+              <input type="radio" name="defaultMode" value="both" checked />
+              <div>
+                <strong>Both (Seerr + Direct Sonarr/Radarr)</strong>
+                <span>Show quick buttons for both Seerr requests and direct *arr addition</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="defaultMode" value="seerr" />
+              <div>
+                <strong>Seerr Only (Overseerr / Jellyseerr)</strong>
+                <span>Send all TV &amp; Movie requests through Seerr</span>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="defaultMode" value="arr" />
+              <div>
+                <strong>Direct Sonarr &amp; Radarr Only</strong>
+                <span>Add TV series to Sonarr and Movies to Radarr directly</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Seerr Config -->
+        <div class="form-section">
+          <div class="section-title-row">
+            <h3>🟣 Seerr (Overseerr / Jellyseerr)</h3>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-test-seerr">Test Seerr</button>
+          </div>
+          <div class="form-grid">
+            <label>
+              <span>Seerr URL</span>
+              <input type="url" id="cfg-seerr-url" placeholder="http://overseerr:5055" />
+            </label>
+            <label>
+              <span>Seerr API Key</span>
+              <input type="password" id="cfg-seerr-key" placeholder="Your Seerr API Key" autocomplete="off" />
+            </label>
+          </div>
+          <div id="test-result-seerr" class="test-feedback"></div>
+        </div>
+
+        <!-- Sonarr Config -->
+        <div class="form-section">
+          <div class="section-title-row">
+            <h3>🔵 Sonarr (Anime TV / OVA / ONA)</h3>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-test-sonarr">Test &amp; Load Profiles</button>
+          </div>
+          <div class="form-grid">
+            <label>
+              <span>Sonarr URL</span>
+              <input type="url" id="cfg-sonarr-url" placeholder="http://sonarr:8989" />
+            </label>
+            <label>
+              <span>Sonarr API Key</span>
+              <input type="password" id="cfg-sonarr-key" placeholder="Your Sonarr API Key" autocomplete="off" />
+            </label>
+            <label>
+              <span>Quality Profile ID</span>
+              <div class="input-with-select">
+                <input type="number" id="cfg-sonarr-profile" placeholder="e.g. 1" />
+                <select id="select-sonarr-profile" class="hidden"></select>
+              </div>
+            </label>
+            <label>
+              <span>Root Folder Path</span>
+              <div class="input-with-select">
+                <input type="text" id="cfg-sonarr-root" placeholder="/data/media/anime" />
+                <select id="select-sonarr-root" class="hidden"></select>
+              </div>
+            </label>
+            <label>
+              <span>Series Type</span>
+              <select id="cfg-sonarr-type">
+                <option value="anime">Anime (Absolute / Anime numbering)</option>
+                <option value="standard">Standard (S01E01 numbering)</option>
+              </select>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="cfg-sonarr-search" checked />
+              <span>Automatically search for missing episodes on add</span>
+            </label>
+          </div>
+          <div id="test-result-sonarr" class="test-feedback"></div>
+        </div>
+
+        <!-- Radarr Config -->
+        <div class="form-section">
+          <div class="section-title-row">
+            <h3>🟡 Radarr (Anime Movies)</h3>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-test-radarr">Test &amp; Load Profiles</button>
+          </div>
+          <div class="form-grid">
+            <label>
+              <span>Radarr URL</span>
+              <input type="url" id="cfg-radarr-url" placeholder="http://radarr:7878" />
+            </label>
+            <label>
+              <span>Radarr API Key</span>
+              <input type="password" id="cfg-radarr-key" placeholder="Your Radarr API Key" autocomplete="off" />
+            </label>
+            <label>
+              <span>Quality Profile ID</span>
+              <div class="input-with-select">
+                <input type="number" id="cfg-radarr-profile" placeholder="e.g. 1" />
+                <select id="select-radarr-profile" class="hidden"></select>
+              </div>
+            </label>
+            <label>
+              <span>Root Folder Path</span>
+              <div class="input-with-select">
+                <input type="text" id="cfg-radarr-root" placeholder="/data/media/anime-movies" />
+                <select id="select-radarr-root" class="hidden"></select>
+              </div>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="cfg-radarr-search" checked />
+              <span>Automatically search for movie on add</span>
+            </label>
+          </div>
+          <div id="test-result-radarr" class="test-feedback"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="btn-cancel-settings">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Settings</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
